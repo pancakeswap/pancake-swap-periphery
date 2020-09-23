@@ -1,14 +1,14 @@
 {
-  "name": "@uniswap/v2-periphery",
+  "name": "pancakeswap-peripheral",
   "version": "1.1.0-beta.0",
-  "description": "🎚 Peripheral smart contracts for interacting with Uniswap V2",
+  "description": "🎚 Peripheral smart contracts for interacting with pancake",
   "engines": {
     "node": ">=10"
   },
-  "homepage": "https://uniswap.org",
+  "homepage": "https://pancakeswap.finance",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Uniswap/uniswap-v2-periphery"
+    "url": "https://github.com/pancakeswap/pancake-swap-periphery.git"
   },
   "files": [
     "build",
@@ -16,7 +16,9 @@
   ],
   "dependencies": {
     "@uniswap/lib": "1.1.1",
-    "@uniswap/v2-core": "1.0.0"
+    "@uniswap/v2-core": "^1.0.1",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "truffle-plugin-verify": "^0.4.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.6",
