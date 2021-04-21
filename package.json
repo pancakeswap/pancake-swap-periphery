@@ -15,10 +15,13 @@
     "contracts"
   ],
   "dependencies": {
+    "@openzeppelin/contracts": "3.1.0",
+    "@truffle/hdwallet-provider": "^1.2.6",
     "@uniswap/lib": "1.1.1",
     "@uniswap/v2-core": "^1.0.1",
+    "dotenv": "^8.2.0",
     "truffle-hdwallet-provider": "^1.0.17",
-    "truffle-plugin-verify": "^0.4.0"
+    "truffle-plugin-verify": "^0.5.6"
   },
   "devDependencies": {
     "@types/chai": "^4.2.6",
@@ -35,6 +38,10 @@
     "typescript": "^3.7.3"
   },
   "scripts": {
+    "deploy": "truffle migrate --network bscTestnet --reset && truffle run verify PancakeRouter01 --network bscTestnet",
+    "comment1": "        ",
+    "comment2": "        ",
+    "comment3": "        ",
     "lint": "yarn prettier ./test/*.ts --check",
     "lint:fix": "yarn prettier ./test/*.ts --write",
     "clean": "rimraf ./build/",
