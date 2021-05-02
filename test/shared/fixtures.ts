@@ -13,7 +13,7 @@ import UniswapV1Exchange from '../../build/UniswapV1Exchange.json'
 import UniswapV1Factory from '../../build/UniswapV1Factory.json'
 import PancakeRouter01 from '../../build/PancakeRouter01.json'
 import PancakeMigrator from '../../build/PancakeMigrator.json'
-import PancakeRouter02 from '../../build/PancakeRouter02.json'
+import PancakeRouter from '../../build/PancakeRouter.json'
 import RouterEventEmitter from '../../build/RouterEventEmitter.json'
 
 const overrides = {
@@ -53,7 +53,7 @@ export async function v2Fixture(provider: Web3Provider, [wallet]: Wallet[]): Pro
 
   // deploy routers
   const router01 = await deployContract(wallet, PancakeRouter01, [factoryV2.address, WETH.address], overrides)
-  const router02 = await deployContract(wallet, PancakeRouter02, [factoryV2.address, WETH.address], overrides)
+  const router02 = await deployContract(wallet, PancakeRouter, [factoryV2.address, WETH.address], overrides)
 
   // event emitter for testing
   const routerEventEmitter = await deployContract(wallet, RouterEventEmitter, [])
