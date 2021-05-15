@@ -1,15 +1,9 @@
 import chai, { expect } from 'chai'
 import { solidity, MockProvider, createFixtureLoader, deployContract } from 'ethereum-waffle'
 import { Contract } from 'ethers'
-import { BigNumber, bigNumberify } from 'ethers/utils'
+import { bigNumberify } from 'ethers/utils'
 import { MaxUint256 } from 'ethers/constants'
-import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-
 import { v2Fixture } from './shared/fixtures'
-import { expandTo18Decimals, getApprovalDigest, MINIMUM_LIQUIDITY } from './shared/utilities'
-
-import DeflatingERC20 from '../build/DeflatingERC20.json'
-import { ecsign } from 'ethereumjs-util'
 
 chai.use(solidity)
 
