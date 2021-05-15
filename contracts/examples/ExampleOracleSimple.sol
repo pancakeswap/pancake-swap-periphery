@@ -1,7 +1,7 @@
 pragma solidity =0.6.6;
 
-import '@uniswap/v2-core/contracts/interfaces/IPancakeFactory.sol';
-import '@uniswap/v2-core/contracts/interfaces/IPancakePair.sol';
+import '@pancakeswap-libs/pancake-swap-core/contracts/interfaces/IPancakeFactory.sol';
+import '@pancakeswap-libs/pancake-swap-core/contracts/interfaces/IPancakePair.sol';
 import '@uniswap/lib/contracts/libraries/FixedPoint.sol';
 
 import '../libraries/PancakeOracleLibrary.sol';
