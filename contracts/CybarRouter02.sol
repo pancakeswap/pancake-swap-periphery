@@ -8,7 +8,7 @@ import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
 import './interfaces/ICybarFactory.sol';
 
-contract CybarRouter is ICybarRouter02 {
+contract CybarRouter02 is ICybarRouter02 {
     using SafeMath for uint;
 
     address public immutable override factory;
