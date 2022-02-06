@@ -1,0 +1,4 @@
+* Hinzufügen von Liquidität
+  * Es gibt die internal Funktion _addLiquidity die für die verschiedenen addLiquidity*
+    Funktionen die Mengen an tokenA und tokenB zurückgibt. Gibt es das Pairing nicht bereits
+    so wird es von _addLiquidity erstellt

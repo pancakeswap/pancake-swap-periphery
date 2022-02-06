@@ -1,0 +1,25 @@
+* CybarRouter01 is ICybarRouter01
+  * Bedient das ICybarRouter01 Interface
+  * Hat eine factory und wrapped Ether im Cybar Fall eher wrapped Fantom
+  * _addLiquidity fügt Liquidity hinzu als private Funktion. Die folgenden Parameter werden genommen
+    * tokenA
+    * tokenB
+    * amountADesired
+    * amountBDesired
+    * amountAMin
+    * amountBMin
+    * Wenn das Pairing nicht bereits existiert wird es von dem CybarROuter01 hinzugefügt
+    * Die reserves werden von der factory geholt
+    * Wenn sowohl die reserveA als auch reserveB Null sind, werden amountA und amountB auf
+      amountADesired und amountBDesired gesetzt, es wird also das gewünschte Preisverhältnis
+      gesetzt sollte noch kein Preis festgelegt sein
+    Mit dieser Funktion werden die Anteile der beiden Token berechnet und es wird überprüft
+    ob diese in den annehmbaren Rahmen sind und ob genug Token vorhanden sind
+  * addLiquidity ist eine wrapper Funktion die zusätzlich eine Addresse to und eine
+    deadline benutzt
+    * Die deadline soll verhindern, dass die Transaktion nicht im mempool hängen bleibt
+    * Zuerst wird _addLiquidity mit den entsprechenden Parametern aufgerufen
+    * Dann wird die Pair Addresse von der Factory geholt
+    * tokenA und tokenB werden dann vom Sender an das Pair geschickt
+    * Liquidity wird dann über das Pair an die Addresse to geminted
+    
