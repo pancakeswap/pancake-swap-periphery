@@ -1,19 +1,18 @@
 pragma solidity =0.6.6;
 
-import '@uniswap/v2-core/contracts/interfaces/IPancakeFactory.sol';
-import '@uniswap/lib/contracts/libraries/TransferHelper.sol';
-
-import './libraries/PancakeLibrary.sol';
-import './interfaces/IPancakeRouter01.sol';
+import './libraries/CybarLibrary.sol';
+import './libraries/TransferHelper.sol';
+import './interfaces/ICybarRouter01.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IWETH.sol';
+import './interfaces/ICybarFactory.sol';
 
-contract PancakeRouter01 is IPancakeRouter01 {
+contract CybarRouter01 is ICybarRouter01 {
     address public immutable override factory;
     address public immutable override WETH;
 
     modifier ensure(uint deadline) {
-        require(deadline >= block.timestamp, 'PancakeRouter: EXPIRED');
+        require(deadline >= block.timestamp, 'CybarRouter: EXPIRED');
         _;
     }
 
@@ -36,21 +35,21 @@ contract PancakeRouter01 is IPancakeRouter01 {
         uint amountBMin
     ) private returns (uint amountA, uint amountB) {
         // create the pair if it doesn't exist yet
-        if (IPancakeFactory(factory).getPair(tokenA, tokenB) == address(0)) {
-            IPancakeFactory(factory).createPair(tokenA, tokenB);
+        if (ICybarFactory(factory).getPair(tokenA, tokenB) == address(0)) {
+            ICybarFactory(factory).createPair(tokenA, tokenB);
         }
-        (uint reserveA, uint reserveB) = PancakeLibrary.getReserves(factory, tokenA, tokenB);
+        (uint reserveA, uint reserveB) = CybarLibrary.getReserves(factory, tokenA, tokenB);
         if (reserveA == 0 && reserveB == 0) {
             (amountA, amountB) = (amountADesired, amountBDesired);
         } else {
-            uint amountBOptimal = PancakeLibrary.quote(amountADesired, reserveA, reserveB);
+            uint amountBOptimal = CybarLibrary.quote(amountADesired, reserveA, reserveB);
             if (amountBOptimal <= amountBDesired) {
-                require(amountBOptimal >= amountBMin, 'PancakeRouter: INSUFFICIENT_B_AMOUNT');
+                require(amountBOptimal >= amountBMin, 'CybarRouter: INSUFFICIENT_B_AMOUNT');
                 (amountA, amountB) = (amountADesired, amountBOptimal);
             } else {
-                uint amountAOptimal = PancakeLibrary.quote(amountBDesired, reserveB, reserveA);
+                uint amountAOptimal = CybarLibrary.quote(amountBDesired, reserveB, reserveA);
                 assert(amountAOptimal <= amountADesired);
-                require(amountAOptimal >= amountAMin, 'PancakeRouter: INSUFFICIENT_A_AMOUNT');
+                require(amountAOptimal >= amountAMin, 'CybarRouter: INSUFFICIENT_A_AMOUNT');
                 (amountA, amountB) = (amountAOptimal, amountBDesired);
             }
         }
@@ -66,10 +65,10 @@ contract PancakeRouter01 is IPancakeRouter01 {
         uint deadline
     ) external override ensure(deadline) returns (uint amountA, uint amountB, uint liquidity) {
         (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
-        address pair = PancakeLibrary.pairFor(factory, tokenA, tokenB);
+        address pair = CybarLibrary.pairFor(factory, tokenA, tokenB);
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
-        liquidity = IPancakePair(pair).mint(to);
+        liquidity = ICybarPair(pair).mint(to);
     }
     function addLiquidityETH(
         address token,
@@ -87,11 +86,11 @@ contract PancakeRouter01 is IPancakeRouter01 {
             amountTokenMin,
             amountETHMin
         );
-        address pair = PancakeLibrary.pairFor(factory, token, WETH);
+        address pair = CybarLibrary.pairFor(factory, token, WETH);
         TransferHelper.safeTransferFrom(token, msg.sender, pair, amountToken);
         IWETH(WETH).deposit{value: amountETH}();
         assert(IWETH(WETH).transfer(pair, amountETH));
-        liquidity = IPancakePair(pair).mint(to);
+        liquidity = ICybarPair(pair).mint(to);
         if (msg.value > amountETH) TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH); // refund dust eth, if any
     }
 
@@ -105,13 +104,13 @@ contract PancakeRouter01 is IPancakeRouter01 {
         address to,
         uint deadline
     ) public override ensure(deadline) returns (uint amountA, uint amountB) {
-        address pair = PancakeLibrary.pairFor(factory, tokenA, tokenB);
-        IPancakePair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
-        (uint amount0, uint amount1) = IPancakePair(pair).burn(to);
-        (address token0,) = PancakeLibrary.sortTokens(tokenA, tokenB);
+        address pair = CybarLibrary.pairFor(factory, tokenA, tokenB);
+        ICybarPair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
+        (uint amount0, uint amount1) = ICybarPair(pair).burn(to);
+        (address token0,) = CybarLibrary.sortTokens(tokenA, tokenB);
         (amountA, amountB) = tokenA == token0 ? (amount0, amount1) : (amount1, amount0);
-        require(amountA >= amountAMin, 'PancakeRouter: INSUFFICIENT_A_AMOUNT');
-        require(amountB >= amountBMin, 'PancakeRouter: INSUFFICIENT_B_AMOUNT');
+        require(amountA >= amountAMin, 'CybarRouter: INSUFFICIENT_A_AMOUNT');
+        require(amountB >= amountBMin, 'CybarRouter: INSUFFICIENT_B_AMOUNT');
     }
     function removeLiquidityETH(
         address token,
@@ -144,9 +143,9 @@ contract PancakeRouter01 is IPancakeRouter01 {
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external override returns (uint amountA, uint amountB) {
-        address pair = PancakeLibrary.pairFor(factory, tokenA, tokenB);
+        address pair = CybarLibrary.pairFor(factory, tokenA, tokenB);
         uint value = approveMax ? uint(-1) : liquidity;
-        IPancakePair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
+        ICybarPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
         (amountA, amountB) = removeLiquidity(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline);
     }
     function removeLiquidityETHWithPermit(
@@ -158,9 +157,9 @@ contract PancakeRouter01 is IPancakeRouter01 {
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external override returns (uint amountToken, uint amountETH) {
-        address pair = PancakeLibrary.pairFor(factory, token, WETH);
+        address pair = CybarLibrary.pairFor(factory, token, WETH);
         uint value = approveMax ? uint(-1) : liquidity;
-        IPancakePair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
+        ICybarPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
         (amountToken, amountETH) = removeLiquidityETH(token, liquidity, amountTokenMin, amountETHMin, to, deadline);
     }
 
@@ -169,11 +168,11 @@ contract PancakeRouter01 is IPancakeRouter01 {
     function _swap(uint[] memory amounts, address[] memory path, address _to) private {
         for (uint i; i < path.length - 1; i++) {
             (address input, address output) = (path[i], path[i + 1]);
-            (address token0,) = PancakeLibrary.sortTokens(input, output);
+            (address token0,) = CybarLibrary.sortTokens(input, output);
             uint amountOut = amounts[i + 1];
             (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOut) : (amountOut, uint(0));
-            address to = i < path.length - 2 ? PancakeLibrary.pairFor(factory, output, path[i + 2]) : _to;
-            IPancakePair(PancakeLibrary.pairFor(factory, input, output)).swap(amount0Out, amount1Out, to, new bytes(0));
+            address to = i < path.length - 2 ? CybarLibrary.pairFor(factory, output, path[i + 2]) : _to;
+            ICybarPair(CybarLibrary.pairFor(factory, input, output)).swap(amount0Out, amount1Out, to, new bytes(0));
         }
     }
     function swapExactTokensForTokens(
@@ -183,9 +182,9 @@ contract PancakeRouter01 is IPancakeRouter01 {
         address to,
         uint deadline
     ) external override ensure(deadline) returns (uint[] memory amounts) {
-        amounts = PancakeLibrary.getAmountsOut(factory, amountIn, path);
-        require(amounts[amounts.length - 1] >= amountOutMin, 'PancakeRouter: INSUFFICIENT_OUTPUT_AMOUNT');
-        TransferHelper.safeTransferFrom(path[0], msg.sender, PancakeLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
+        amounts = CybarLibrary.getAmountsOut(factory, amountIn, path);
+        require(amounts[amounts.length - 1] >= amountOutMin, 'CybarRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+        TransferHelper.safeTransferFrom(path[0], msg.sender, CybarLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
         _swap(amounts, path, to);
     }
     function swapTokensForExactTokens(
@@ -195,9 +194,9 @@ contract PancakeRouter01 is IPancakeRouter01 {
         address to,
         uint deadline
     ) external override ensure(deadline) returns (uint[] memory amounts) {
-        amounts = PancakeLibrary.getAmountsIn(factory, amountOut, path);
-        require(amounts[0] <= amountInMax, 'PancakeRouter: EXCESSIVE_INPUT_AMOUNT');
-        TransferHelper.safeTransferFrom(path[0], msg.sender, PancakeLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
+        amounts = CybarLibrary.getAmountsIn(factory, amountOut, path);
+        require(amounts[0] <= amountInMax, 'CybarRouter: EXCESSIVE_INPUT_AMOUNT');
+        TransferHelper.safeTransferFrom(path[0], msg.sender, CybarLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
         _swap(amounts, path, to);
     }
     function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
@@ -207,11 +206,11 @@ contract PancakeRouter01 is IPancakeRouter01 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[0] == WETH, 'PancakeRouter: INVALID_PATH');
-        amounts = PancakeLibrary.getAmountsOut(factory, msg.value, path);
-        require(amounts[amounts.length - 1] >= amountOutMin, 'PancakeRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+        require(path[0] == WETH, 'CybarRouter: INVALID_PATH');
+        amounts = CybarLibrary.getAmountsOut(factory, msg.value, path);
+        require(amounts[amounts.length - 1] >= amountOutMin, 'CybarRouter: INSUFFICIENT_OUTPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
-        assert(IWETH(WETH).transfer(PancakeLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
+        assert(IWETH(WETH).transfer(CybarLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
     }
     function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
@@ -220,10 +219,10 @@ contract PancakeRouter01 is IPancakeRouter01 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[path.length - 1] == WETH, 'PancakeRouter: INVALID_PATH');
-        amounts = PancakeLibrary.getAmountsIn(factory, amountOut, path);
-        require(amounts[0] <= amountInMax, 'PancakeRouter: EXCESSIVE_INPUT_AMOUNT');
-        TransferHelper.safeTransferFrom(path[0], msg.sender, PancakeLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
+        require(path[path.length - 1] == WETH, 'CybarRouter: INVALID_PATH');
+        amounts = CybarLibrary.getAmountsIn(factory, amountOut, path);
+        require(amounts[0] <= amountInMax, 'CybarRouter: EXCESSIVE_INPUT_AMOUNT');
+        TransferHelper.safeTransferFrom(path[0], msg.sender, CybarLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
         _swap(amounts, path, address(this));
         IWETH(WETH).withdraw(amounts[amounts.length - 1]);
         TransferHelper.safeTransferETH(to, amounts[amounts.length - 1]);
@@ -234,10 +233,10 @@ contract PancakeRouter01 is IPancakeRouter01 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[path.length - 1] == WETH, 'PancakeRouter: INVALID_PATH');
-        amounts = PancakeLibrary.getAmountsOut(factory, amountIn, path);
-        require(amounts[amounts.length - 1] >= amountOutMin, 'PancakeRouter: INSUFFICIENT_OUTPUT_AMOUNT');
-        TransferHelper.safeTransferFrom(path[0], msg.sender, PancakeLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
+        require(path[path.length - 1] == WETH, 'CybarRouter: INVALID_PATH');
+        amounts = CybarLibrary.getAmountsOut(factory, amountIn, path);
+        require(amounts[amounts.length - 1] >= amountOutMin, 'CybarRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+        TransferHelper.safeTransferFrom(path[0], msg.sender, CybarLibrary.pairFor(factory, path[0], path[1]), amounts[0]);
         _swap(amounts, path, address(this));
         IWETH(WETH).withdraw(amounts[amounts.length - 1]);
         TransferHelper.safeTransferETH(to, amounts[amounts.length - 1]);
@@ -249,32 +248,32 @@ contract PancakeRouter01 is IPancakeRouter01 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[0] == WETH, 'PancakeRouter: INVALID_PATH');
-        amounts = PancakeLibrary.getAmountsIn(factory, amountOut, path);
-        require(amounts[0] <= msg.value, 'PancakeRouter: EXCESSIVE_INPUT_AMOUNT');
+        require(path[0] == WETH, 'CybarRouter: INVALID_PATH');
+        amounts = CybarLibrary.getAmountsIn(factory, amountOut, path);
+        require(amounts[0] <= msg.value, 'CybarRouter: EXCESSIVE_INPUT_AMOUNT');
         IWETH(WETH).deposit{value: amounts[0]}();
-        assert(IWETH(WETH).transfer(PancakeLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
+        assert(IWETH(WETH).transfer(CybarLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
         if (msg.value > amounts[0]) TransferHelper.safeTransferETH(msg.sender, msg.value - amounts[0]); // refund dust eth, if any
     }
 
     function quote(uint amountA, uint reserveA, uint reserveB) public pure override returns (uint amountB) {
-        return PancakeLibrary.quote(amountA, reserveA, reserveB);
+        return CybarLibrary.quote(amountA, reserveA, reserveB);
     }
 
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) public pure override returns (uint amountOut) {
-        return PancakeLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
+        return CybarLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
     }
 
     function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) public pure override returns (uint amountIn) {
-        return PancakeLibrary.getAmountOut(amountOut, reserveIn, reserveOut);
+        return CybarLibrary.getAmountOut(amountOut, reserveIn, reserveOut);
     }
 
     function getAmountsOut(uint amountIn, address[] memory path) public view override returns (uint[] memory amounts) {
-        return PancakeLibrary.getAmountsOut(factory, amountIn, path);
+        return CybarLibrary.getAmountsOut(factory, amountIn, path);
     }
 
     function getAmountsIn(uint amountOut, address[] memory path) public view override returns (uint[] memory amounts) {
-        return PancakeLibrary.getAmountsIn(factory, amountOut, path);
+        return CybarLibrary.getAmountsIn(factory, amountOut, path);
     }
 }
