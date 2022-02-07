@@ -517,8 +517,8 @@ describe('CybarRouter{01,02}', () => {
           const receipt = await tx.wait()
           expect(receipt.gasUsed).to.eq(
             {
-              [RouterVersion.CybarRouter01]: 139420,
-              [RouterVersion.CybarRouter02]: 139420
+              [RouterVersion.CybarRouter01]: 139399,
+              [RouterVersion.CybarRouter02]: 139444
             }[routerVersion as RouterVersion]
           )
         }).retries(3)
