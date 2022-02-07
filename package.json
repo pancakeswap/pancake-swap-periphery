@@ -21,6 +21,7 @@
     "truffle-plugin-verify": "^0.4.0"
   },
   "devDependencies": {
+    "@truffle/hdwallet-provider": "1.7.0",
     "@types/chai": "^4.2.6",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
@@ -31,6 +32,7 @@
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
     "solc": "0.6.6",
+    "truffle": "^5.1.41",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.3"
   },
@@ -38,10 +40,8 @@
     "lint": "yarn prettier ./test/*.ts --check",
     "lint:fix": "yarn prettier ./test/*.ts --write",
     "clean": "rimraf ./build/",
-    "copy-v1-artifacts": "ncp ./buildV1 ./build",
     "precompile": "yarn clean",
     "compile": "waffle .waffle.json",
-    "postcompile": "yarn copy-v1-artifacts",
     "pretest": "yarn compile",
     "test": "mocha",
     "prepublishOnly": "yarn test"
