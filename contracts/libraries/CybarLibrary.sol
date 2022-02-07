@@ -1,7 +1,7 @@
 pragma solidity >=0.5.0;
 
 import "./SafeMath.sol";
-import './interfaces/ICybarPair.sol';
+import '../interfaces/ICybarPair.sol';
 
 library CybarLibrary {
     using SafeMath for uint;
@@ -20,7 +20,8 @@ library CybarLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'd1a9774abcf776b67f3e94a454e1ebc0f9c5430146e169e528b0609d990d7a81' // init code hash
+                /* hex'd1a9774abcf776b67f3e94a454e1ebc0f9c5430146e169e528b0609d990d7a81' // Test hash value */
+                hex'b7cc4a47bf993d66be0243a153a87281917848e24ebf0336b9389cb5347dfedd'// Deployment hash value
             ))));
     }
 
